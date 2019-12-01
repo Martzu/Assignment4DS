@@ -25,8 +25,10 @@ public class Sensor {
     private String end;
     private String activity;
 
+    private boolean anomaly;
+
     public String toString()
     {
-        return "patientId: " + patientId + " startTime: " + start + " endTime: " + end + " activity: " + activity;
+        return "patientId: " + patientId + " ,startTime: " + start + " ,endTime: " + end + " ,activity: " + activity + " ,anomaly: " + anomaly;
     }
 }
