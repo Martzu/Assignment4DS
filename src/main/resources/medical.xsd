@@ -20,19 +20,7 @@
             <xsd:sequence>
                 <xsd:element name="activity" type="xsd:string"
                     maxOccurs="unbounded"/>
-                <!-- parsezi stringu ala care se schimba din assig3,
-                 pui format sa fie usor cu split dupa virgula or something
-                 ca sa vezi ca nu o fost luat medicalPlanu cum trebuie
-                 -->
-
-                <!-- pentru aia cu activities that do not meet rules in
-                 assig2, salvezi in baza de date daca ii normal sau nu,
-                 in front end, doctor apasa pe un button daca ii nu-i ok
-                 Daca apasa pe nu, ii apare pop up cu recomandare si
-                 dupa ce da send seteaza campu cu recommendation in baza de
-                  date si caregiveri pot sa vadaacel recommendation-->
                 <xsd:element name="medicalPlan" type="xsd:string"/>
-
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>

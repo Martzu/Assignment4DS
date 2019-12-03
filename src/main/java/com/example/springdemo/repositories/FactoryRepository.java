@@ -11,4 +11,6 @@ public interface FactoryRepository {
     public MedicalPlanRepository createMedicalPlanRepository();
 
     public SensorRepository createSensorRepository();
+
+    public RecommendationRepository createRecommendationRepository();
 }

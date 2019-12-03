@@ -13,12 +13,13 @@ import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 @Endpoint
+@RequiredArgsConstructor
 public class DoctorEndpoint {
 
     private static final String NAMESPACE = "http://www.example.com/springdemo/soap";
 
-    @Autowired
-    private DoctorService service;
+
+    private final DoctorService service;
 
     @PayloadRoot(namespace = NAMESPACE, localPart = "DoctorRequest")
     @ResponsePayload

@@ -12,36 +12,46 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import os
 
+patient_id = 10
 url = "http://localhost:8080/ws"
 headers = {'Content-Type': 'text/xml'}
-body = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+history_body = '''<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
 xmlns:med="http://www.example.com/springdemo/soap">
     <soapenv:Header/>
     <soapenv:Body>
         <med:DoctorRequest>
-            <med:patientId>6</med:patientId>
+            <med:patientId>''' + f'{patient_id}' + '''</med:patientId>
             <med:sessionId/>
             <med:medicalPlanId/>
             <med:recommendation/>
         </med:DoctorRequest>
     </soapenv:Body>
-</soapenv:Envelope>"""
+</soapenv:Envelope>'''
+
+medical_plan_id = ''
+recommendation = ''
+
+if os.path.isfile('activity.png'):
+    os.remove('activity.png')
 
 sg.change_look_and_feel('DarkAmber')  # Add a touch of color
 
 history = sg.Multiline('', size=(100, 20))
-
-if os.path.isfile('activity.png'):
-    os.remove('activity.png')
 image = sg.Image(filename='')
-layout = [[sg.Text('Some text on Row 1')],
-          [sg.Text('Enter something on Row 2'), sg.InputText()],
-          [sg.Button('Ok'), sg.Button('Send'), sg.Button('Cancel')],
+
+medical_plan = sg.Text('', size=(100, 1))
+
+
+recommendation_input = sg.InputText()
+activity_input = sg.InputText()
+
+layout = [[sg.Text('PatientId'), sg.InputText(), sg.Text('Recommendation'), recommendation_input],
+          [sg.Text('MedicalPlanId'), sg.InputText(), sg.Text('Activity'), activity_input],
+          [sg.Button('Check plan'), sg.Button('Send'), sg.Button('Add recommendation')],
+          [medical_plan],
           [history],
           [image]
           ]
-
-
 
 # Create the Window
 window = sg.Window('Window Title', layout)
@@ -51,9 +61,50 @@ while True:
     event, values = window.read()
     if event in (None, 'Cancel'):  # if user closes window or clicks cancel
         break
-    print('You entered ', values[0])
+
+    if event in (None, 'Check plan'):
+        patient_id = values[0]
+        medical_plan_id = values[2]
+        medical_plan_body = '''<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+        xmlns:med="http://www.example.com/springdemo/soap">
+            <soapenv:Header/>
+            <soapenv:Body>
+                <med:DoctorRequest>
+                    <med:patientId>''' + f'{patient_id}' + '''</med:patientId>
+                    <med:sessionId/>
+                    <med:medicalPlanId>''' + f'{medical_plan_id}' + '''</med:medicalPlanId>
+                    <med:recommendation/>
+                </med:DoctorRequest>
+            </soapenv:Body>
+        </soapenv:Envelope>'''
+        response = requests.post(url, data=medical_plan_body, headers=headers)
+        doc = xmltodict.parse(response.content)
+        medical_plan.update(doc['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns2:DoctorResponse']['ns2:medicalPlan'])
+
+        # parse the resulted xml
+
+    if event in (None, 'Add recommendation'):
+        recommendation = values[1]
+        activity_id = values[3]
+        recommendation_body = '''<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+        xmlns:med="http://www.example.com/springdemo/soap">
+            <soapenv:Header/>
+            <soapenv:Body>
+                <med:DoctorRequest>
+                    <med:patientId>''' + f'{patient_id}' + '''</med:patientId>
+                    <med:sessionId>''' + f'{activity_id}' + '''</med:sessionId>
+                    <med:medicalPlanId/>
+                    <med:recommendation>''' + f'{recommendation}' + '''</med:recommendation>
+                </med:DoctorRequest>
+            </soapenv:Body>
+        </soapenv:Envelope>'''
+        requests.post(url, data=recommendation_body, headers=headers)
+        recommendation_input.update('')
+        activity_input.update('')
+
+
     if event in (None, 'Send'):
-        response = requests.post(url, data=body, headers=headers)
+        response = requests.post(url, data=history_body, headers=headers)
         doc = xmltodict.parse(response.content)
         activities = doc['SOAP-ENV:Envelope']['SOAP-ENV:Body']['ns2:DoctorResponse']['ns2:activity']
         activities_to_display = ''
@@ -79,6 +130,5 @@ while True:
 
         history.update(activities_to_display)
         image.Update(filename='activity.png')
-
 
 window.close()

@@ -15,6 +15,8 @@ public class FactoryRepositoryImplementation implements FactoryRepository {
 
     private final SensorRepository sensorRepository;
 
+    private final RecommendationRepository recommendationRepository;
+
     @Override
     public HospitalUserRepository createHospitalUserRepository() {
         return hospitalUserRepository;
@@ -30,5 +32,10 @@ public class FactoryRepositoryImplementation implements FactoryRepository {
 
     @Override
     public SensorRepository createSensorRepository() { return sensorRepository; }
+
+    @Override
+    public RecommendationRepository createRecommendationRepository() {
+        return recommendationRepository;
+    }
 
 }
